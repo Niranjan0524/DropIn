@@ -1,0 +1,38 @@
+# Local implementation roadmap (intentionally kept out of Git by request)
+/DROPIN_IMPLEMENTATION_PLAN.md
+
+# Dependencies and build output
+/node_modules/
+/.next/
+/out/
+/build/
+/dist/
+/coverage/
+/playwright-report/
+/test-results/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+
+# Local tooling state
+.vercel/
+.supabase/
+.turbo/
+.cache/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

@@ -5,8 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 
@@ -20,6 +19,8 @@ type ThemeContextValue = {
 const STORAGE_KEY = "dropin-theme";
 const preferences: ThemePreference[] = ["system", "light", "dark"];
 const ThemeContext = createContext<ThemeContextValue | null>(null);
+const listeners = new Set<() => void>();
+let memoryPreference: ThemePreference = "system";
 
 function applyTheme(preference: ThemePreference) {
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -31,24 +32,35 @@ function applyTheme(preference: ThemePreference) {
 }
 
 function readPreference(): ThemePreference {
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return preferences.includes(stored as ThemePreference)
-    ? (stored as ThemePreference)
-    : "system";
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    memoryPreference = preferences.includes(stored as ThemePreference)
+      ? (stored as ThemePreference)
+      : "system";
+    return memoryPreference;
+  } catch {
+    return memoryPreference;
+  }
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  window.addEventListener("storage", listener);
+
+  return () => {
+    listeners.delete(listener);
+    window.removeEventListener("storage", listener);
+  };
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [preference, setPreference] = useState<ThemePreference>("system");
-  const [ready, setReady] = useState(false);
+  const preference = useSyncExternalStore<ThemePreference>(
+    subscribe,
+    readPreference,
+    () => "system",
+  );
 
   useEffect(() => {
-    setPreference(readPreference());
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-
     applyTheme(preference);
 
     if (preference !== "system") return;
@@ -57,19 +69,24 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const updateTheme = () => applyTheme("system");
     media.addEventListener("change", updateTheme);
     return () => media.removeEventListener("change", updateTheme);
-  }, [preference, ready]);
+  }, [preference]);
 
   const cycleTheme = useCallback(() => {
     const current = readPreference();
     const currentIndex = preferences.indexOf(current);
     const next = preferences[(currentIndex + 1) % preferences.length];
+    memoryPreference = next;
 
-    window.localStorage.setItem(STORAGE_KEY, next);
-    setPreference(next);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      // Keep the current tab usable when browser storage is unavailable.
+    }
+    for (const listener of listeners) listener();
     applyTheme(next);
   }, []);
 
-  const value = useMemo(() => ({ preference, cycleTheme }), [preference, cycleTheme]);
+  const value = { preference, cycleTheme };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

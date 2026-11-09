@@ -1,26 +1,95 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --background: #fdf8f1;
+  --surface: #ffffff;
+  --secondary-surface: #fbe9d0;
+  --foreground: #24343a;
+  --muted: #686d7a;
+  --primary: #244855;
+  --primary-hover: #193944;
+  --secondary-accent: #e64833;
+  --tertiary-accent: #874f41;
+  --border: #e9ded2;
+  --success: #16a36a;
+  --warning: #e6a23c;
+  --danger: #e64833;
+  --soft-shadow: 0 24px 60px rgb(36 52 58 / 9%);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #14252c;
+  --surface: #1c3038;
+  --secondary-surface: #244855;
+  --foreground: #fbe9d0;
+  --muted: #b5c5c3;
+  --primary: #90aead;
+  --primary-hover: #b0c9c7;
+  --secondary-accent: #f05a45;
+  --tertiary-accent: #b07867;
+  --border: #354b52;
+  --success: #36c98b;
+  --warning: #f3b74d;
+  --danger: #f06c59;
+  --soft-shadow: 0 24px 60px rgb(0 0 0 / 20%);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-secondary-surface: var(--secondary-surface);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary-accent: var(--secondary-accent);
+  --color-tertiary-accent: var(--tertiary-accent);
+  --color-border: var(--border);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--background);
 }
 
 body {
+  min-height: 100vh;
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--secondary-surface);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 3px solid var(--secondary-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -1,12 +1,12 @@
 # DropIn — High-Level Design
 
-**Status:** Proposed design for the first usable release  
+**Status:** Architecture baseline; Stage 2 foundation implemented, later product flows remain planned  
 **Product requirements:** [`../DropIn.md`](../DropIn.md)  
 **Implementation roadmap:** [`../DROPIN_IMPLEMENTATION_PLAN.md`](../DROPIN_IMPLEMENTATION_PLAN.md) (local planning file; intentionally gitignored)
 
 ## 1. Purpose and scope
 
-This document describes the system shape, responsibilities, boundaries, and key design choices for DropIn's first release. It is a design target, not a statement that these capabilities are implemented. The repository currently contains a basic Next.js scaffold; the application backend, database, auth, and product flows remain future work.
+This document describes the system shape, responsibilities, boundaries, and key design choices for DropIn's first release. The repository now includes the Supabase schema/RLS baseline and cookie-based Auth/profile foundation. Drop discovery, creation, joining, chat, and notifications remain future work.
 
 The first release focuses on online Drops: create, discover, join/leave, and communicate in a text-based activity room. Nearby Drops, exact or approximate location processing, voice/video, social connections, advanced recommendations, and a dedicated Go service are outside this release.
 
@@ -117,7 +117,7 @@ The diagram shows logical boundaries. Exact request paths and hosting compatibil
 
 ### Environments
 
-- **Local:** Next.js dev server and local Supabase stack/CLI where practical; local-only environment values ignored by Git.
+- **Local:** Next.js dev server and local Supabase stack/CLI with Docker; local-only environment values ignored by Git. See [`../docs/AUTH_SETUP.md`](../docs/AUTH_SETUP.md) and [`../docs/DATABASE.md`](../docs/DATABASE.md).
 - **Preview:** isolated or deliberately shared non-production Supabase project with test data and configured auth callback URLs.
 - **Production:** hosted Next.js application and production Supabase project with migrations applied explicitly.
 
@@ -141,14 +141,11 @@ Add a Go service only when concrete operational needs justify it, such as custom
 
 ## 10. Decisions still to make before dependent implementation
 
-1. Exact Supabase SSR/session package and session/cookie integration for the selected Next.js runtime.
-2. Hosting target and support for required Next.js server features.
-3. Trusted-operation placement for create/join/leave/send-message: database RPC, Next.js route handler, or Supabase Edge Function per operation.
-4. Exact public/private Drop semantics and whether unlisted/share-link Drops are part of release one.
-5. Creator membership, leave/rejoin rules, retention of departed membership, and cleanup/archival policy.
-6. Message retention, edit/delete policy, and moderation workflow.
-7. Free-tier limits to monitor and a safe response when quotas are reached.
+1. Hosting target and support for required Next.js server features.
+2. Trusted-operation placement for create/join/leave/send-message: database RPC, Next.js route handler, or Supabase Edge Function per operation.
+3. Message retention, edit/delete policy, and moderation workflow.
+4. Free-tier limits to monitor and a safe response when quotas are reached.
 
 ## 11. Implementation status
 
-This is a proposed target. The repo currently has the generated Next.js/TypeScript/Tailwind/ESLint scaffold only. Supabase, authentication, schema, RLS, realtime subscriptions, server operations, and deployment are not yet implemented or verified.
+The Stage 2 database/auth/profile foundation is implemented and verified by the local pgTAP suite. Drop lifecycle, discovery, messaging, realtime subscriptions, and deployment remain planned. Hosted Supabase and Google OAuth are not configured.

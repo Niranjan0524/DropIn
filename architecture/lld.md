@@ -1,16 +1,16 @@
 # DropIn — Low-Level Design
 
-**Status:** Proposed implementation design for the first usable release  
+**Status:** Stage 2 baseline implemented; later feature contracts remain planned  
 **High-level design:** [`HLD.md`](./HLD.md)  
 **Product requirements:** [`../DropIn.md`](../DropIn.md)
 
-> This document describes planned modules, data contracts, flows, and invariants. It is not a claim that they already exist. Final schema names and provider integrations should be validated in migrations before feature implementation.
+> The Stage 2 schema, RLS policies, Auth flow, and profile setup below now have an initial implementation. See [`../docs/DATABASE.md`](../docs/DATABASE.md) and [`../docs/AUTH_SETUP.md`](../docs/AUTH_SETUP.md). Drop lifecycle, chat, and moderation operation contracts remain design targets for later stages.
 
 ## 1. Scope boundary
 
 The initial implementation covers authenticated profiles, online Drops, discovery, membership, participant-only text chat, share links, and essential report/block behavior. Nearby activities, precise location, voice/video, user connections, a notification center, Redis, and a Go API are deferred.
 
-Current repository status: only a Next.js scaffold exists. The paths below are proposed; create them as each stage is implemented rather than creating empty folders for every future feature.
+Current repository status: the Next.js foundation, Supabase schema/RLS, cookie-backed Auth, and profile editor exist. The remaining paths below are planned; add them with each feature stage rather than creating empty folders for future work.
 
 ## 2. Proposed source layout
 
@@ -268,19 +268,16 @@ These tests should be added as functionality is implemented; they have not been 
 - End-to-end: sign-in → create Drop → discover/open → join as another user → chat → leave; shared link survives auth redirect.
 - Accessibility/responsive: keyboard flow, focus states, contrast, reduced motion, mobile viewport without horizontal overflow.
 
-## 14. Open decisions
+## 14. Open decisions for later stages
 
 Do not silently encode these assumptions; settle them before implementing dependent behavior:
 
-1. Does capacity count the creator? Is creator membership mandatory?
-2. Are unlisted/private Drops in first release, and what exactly grants link-based access?
-3. Can a departed member rejoin? Is membership history retained indefinitely or pruned?
-4. Does a scheduled Drop accept joins before start? Can creator edit title/capacity/timing after members join?
-5. Are participant names/avatars visible on a public landing page before authentication?
-6. What is the initial message retention and moderation/delete policy?
-7. Which hosting runtime supports the required Next.js session/server behavior without paid infrastructure?
-8. For each write, is the trusted implementation a Postgres RPC, Next.js server action/route, or Edge Function?
+1. Does a scheduled Drop accept joins before start? Can creator edit title/capacity/timing after members join?
+2. Are participant names/avatars visible on a public landing page before authentication?
+3. What is the initial message retention and moderation/delete policy?
+4. Which hosting runtime supports the required Next.js session/server behavior without paid infrastructure?
+5. For each Drop/chat write, is the trusted implementation a Postgres RPC, Next.js server action/route, or Edge Function?
 
 ## 15. Implementation status
 
-No database schema, Supabase client, auth flow, RLS policy, API operation, realtime channel, or business feature described here is implemented yet. Update this section and the relevant design when implementation establishes verified behavior.
+Implemented and verified in Stage 2: profiles/interests, Drops/membership/message/report/block tables, indexes and constraints, RLS policies, automatic profile creation, transactional profile save, Supabase SSR clients, email/Google sign-in, callback/session refresh, sign-out, and profile setup/edit. ESLint, TypeScript, and 29 local pgTAP assertions pass. Drop creation/join/leave, message writes/realtime, moderation tools, and hosted provider setup remain unimplemented.

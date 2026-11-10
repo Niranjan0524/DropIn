@@ -1,0 +1,1 @@
+-- Deliberately empty: test fixtures are created inside rolled-back pgTAP tests.

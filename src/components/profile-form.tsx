@@ -10,14 +10,17 @@ const fieldClass =
 export function ProfileForm({
   profile,
   interests,
+  returnTo = "/profile",
 }: {
   profile: { username: string; display_name: string; bio: string | null; visibility: "public" | "private" };
   interests: string[];
+  returnTo?: string;
 }) {
   const [state, action, pending] = useActionState(saveProfileAction, initialState);
 
   return (
     <form action={action} className="space-y-5">
+      <input name="next" type="hidden" value={returnTo} />
       <div>
         <label className="text-sm font-semibold text-foreground" htmlFor="username">Username</label>
         <input className={fieldClass} defaultValue={profile.username} id="username" maxLength={24} minLength={3} name="username" required />

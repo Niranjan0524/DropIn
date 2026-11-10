@@ -2,13 +2,20 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "@/components/profile-form";
 import { SupabaseSetupNotice } from "@/components/supabase-setup-notice";
+import { getSafeAuthReturnPath } from "@/features/auth/redirects";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 export const metadata: Metadata = { title: "Set up your profile" };
 
-export default async function ProfileSetupPage() {
+export default async function ProfileSetupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
   if (!isSupabaseConfigured()) return <SupabaseSetupNotice title="Finish connecting Supabase first" />;
+  const params = await searchParams;
+  const returnTo = getSafeAuthReturnPath(params.next, "/profile");
 
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/sign-in?next=%2Fprofile%2Fsetup");
@@ -35,7 +42,7 @@ export default async function ProfileSetupPage() {
         Choose a username and a few interests. Your profile starts private; you can make it public whenever you choose.
       </p>
       <div className="rounded-[28px] border border-border bg-surface p-6 shadow-[var(--soft-shadow)] sm:p-8">
-        <ProfileForm profile={profile} interests={(rows ?? []).map(({ interest }) => interest)} />
+        <ProfileForm profile={profile} interests={(rows ?? []).map(({ interest }) => interest)} returnTo={returnTo} />
       </div>
     </section>
   );

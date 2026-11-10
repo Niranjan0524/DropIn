@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getSafeAuthReturnPath } from "@/features/auth/redirects";
 import { profileSchema } from "@/features/profiles/schema";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -20,6 +21,7 @@ export async function saveProfileAction(
     visibility: formData.get("visibility"),
     interests: formData.get("interests"),
   });
+  const returnTo = getSafeAuthReturnPath(formData.get("next"), "/profile");
 
   if (!parsed.success) {
     const fieldErrors = parsed.error.flatten().fieldErrors;
@@ -61,5 +63,5 @@ export async function saveProfileAction(
     return { message: "We couldn't save your profile. Please try again." };
   }
 
-  redirect("/profile");
+  redirect(returnTo);
 }

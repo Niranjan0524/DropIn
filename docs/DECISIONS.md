@@ -22,11 +22,13 @@ This log records decisions that guide implementation. Product requirements live 
 
 - **Supabase** is the first-release backend: PostgreSQL for durable domain state and constraints, Auth for identity, and Realtime for change delivery.
 - PostgreSQL is authoritative for Drop ownership, lifecycle, capacity, memberships, and messages. Realtime is delivery only and clients reconcile after reconnects.
-- Business-critical writes must be validated at a trusted server/database boundary and protected by RLS/transactions. Profile writes use a transactional SQL RPC. Drop lifecycle operations will be selected when their stage is implemented.
+- Business-critical writes must be validated at a trusted server/database boundary and protected by RLS/transactions. Profile writes use a transactional SQL RPC; Drop creation and cancellation use database RPCs. Join/leave operations will be implemented in the membership stage.
 - The web app uses `@supabase/ssr` cookie-backed clients. Server-side authorization checks use `auth.getClaims()`; table access remains constrained by RLS. Browser code uses only the Supabase URL and publishable key.
 - Sign-in supports email magic links and Google OAuth. Local Google OAuth is opt-in; local email links are captured by Supabase's local mail inbox.
 - Profiles default to private. A user can explicitly choose public visibility; interests follow profile visibility.
-- `drops.max_participants` includes the creator and is bounded from 2 to 20. Creator membership is represented as an active participant row when a Drop is created (the creation flow is a later stage). Capacity/fullness is derived from active memberships.
+- `drops.max_participants` includes the creator and is bounded from 2 to 20. Creation inserts the creator as an active participant. Capacity/fullness is derived from active memberships.
+- Drop creation accepts 15–240 minute durations and optional starts up to 7 days ahead. PostgreSQL computes `expires_at` and status; scheduled local times are converted by the browser to UTC before submission.
+- Drop creation and creator membership are inserted in one database transaction. Only the creator can cancel an active/scheduled Drop; cancellation preserves its history. Expiry is enforced from timestamps in read policies, even before a background cleanup updates status.
 - First-release Drop visibility is public/private. Private access requires creator or active-member authorization; a share URL does not grant access. Unlisted is deferred.
 - Membership history uses active/left rows, with at most one active row per user/Drop. Rejoining creates a new active row; creator departure/cancellation semantics remain to be defined with Drop lifecycle implementation.
 - Local database development uses the Supabase CLI and Docker. Migrations and pgTAP tests are checked in; no hosted project is linked yet.
@@ -64,3 +66,4 @@ The app has no hosted Supabase project or OAuth provider credentials configured.
 | 2026-11-09 | Keep unfinished destinations as explicit placeholders with no mock activity data. | Avoid presenting planned functionality as implemented. |
 | 2026-11-10 | Use Supabase SSR cookie sessions, verified claims, and RLS-protected browser-safe access. | Keep authenticated reads secure while avoiding service-role credentials in the web app. |
 | 2026-11-10 | Default profiles to private; include the creator in Drop capacity; retain membership history; keep private Drops invite-neutral. | Establish privacy and capacity invariants before implementing Drop flows. |
+| 2026-11-10 | Enforce Drop creation and cancellation through authenticated Postgres RPCs; accept 15–240 minute duration and schedules up to 7 days ahead. | Keep owner, expiry, and membership decisions atomic and independent of client-supplied values. |

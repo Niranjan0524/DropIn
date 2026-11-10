@@ -1,12 +1,12 @@
 # DropIn — High-Level Design
 
-**Status:** Architecture baseline; Stage 2 foundation implemented, later product flows remain planned  
+**Status:** Stage 3 implementation includes transactional Drop creation and creator activity management; discovery/join/chat remain planned  
 **Product requirements:** [`../DropIn.md`](../DropIn.md)  
 **Implementation roadmap:** [`../DROPIN_IMPLEMENTATION_PLAN.md`](../DROPIN_IMPLEMENTATION_PLAN.md) (local planning file; intentionally gitignored)
 
 ## 1. Purpose and scope
 
-This document describes the system shape, responsibilities, boundaries, and key design choices for DropIn's first release. The repository now includes the Supabase schema/RLS baseline and cookie-based Auth/profile foundation. Drop discovery, creation, joining, chat, and notifications remain future work.
+This document describes the system shape, responsibilities, boundaries, and key design choices for DropIn's first release. The repository includes the Supabase schema/RLS baseline, cookie-based Auth/profile foundation, transactional Drop creation/cancellation, and creator activity views. Public discovery, joining, chat, and notifications remain future work.
 
 The first release focuses on online Drops: create, discover, join/leave, and communicate in a text-based activity room. Nearby Drops, exact or approximate location processing, voice/video, social connections, advanced recommendations, and a dedicated Go service are outside this release.
 
@@ -148,4 +148,4 @@ Add a Go service only when concrete operational needs justify it, such as custom
 
 ## 11. Implementation status
 
-The Stage 2 database/auth/profile foundation is implemented and verified by the local pgTAP suite. Drop lifecycle, discovery, messaging, realtime subscriptions, and deployment remain planned. Hosted Supabase and Google OAuth are not configured.
+The Stage 2 database/auth/profile foundation and Stage 3 Drop creation/cancellation/activity views are implemented. The local pgTAP suite includes coverage for creation authorization, creator membership, capacity, schedule/duration, cancellation, and expired-read behavior; rerunning the updated suite is deferred. Discovery, joining, messaging, realtime subscriptions, and deployment remain planned. Hosted Supabase and Google OAuth are not configured.

@@ -57,20 +57,20 @@ export default function Home() {
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
-              href="#the-loop"
+              href="/create"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-background shadow-sm transition hover:bg-primary-hover"
             >
-              See how DropIn works <Icon name="arrow-right" className="size-4" />
+              Create a Drop <Icon name="arrow-right" className="size-4" />
             </Link>
             <Link
-              href="/explore"
+              href="/activities"
               className="inline-flex h-12 items-center justify-center rounded-full px-5 text-sm font-semibold text-foreground transition hover:bg-secondary-surface"
             >
-              Explore the foundation
+              My Activities
             </Link>
           </div>
           <p className="mt-4 text-xs leading-5 text-muted">
-            The app foundation is underway. Live activities and accounts are coming in later stages.
+            Create an activity now. Live discovery and joining are coming in the next stages.
           </p>
         </div>
 
@@ -176,15 +176,15 @@ export default function Home() {
             <div>
               <h2 className="text-lg font-semibold">We’re building the place where plans happen.</h2>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-background/75">
-                This first stage establishes the app foundation. Accounts, Drops, live discovery, and chat come in the next implementation stages.
+                You can create and manage your Drops now. Live discovery, joining, and chat are on the roadmap.
               </p>
             </div>
           </div>
           <Link
-            href="/explore"
+            href="/create"
             className="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-background px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-secondary-surface sm:self-auto"
           >
-            See what’s next <Icon name="arrow-right" className="size-4" />
+            Start a Drop <Icon name="arrow-right" className="size-4" />
           </Link>
         </div>
       </section>

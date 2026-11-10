@@ -1,10 +1,10 @@
 # DropIn — Low-Level Design
 
-**Status:** Stage 2 baseline implemented; later feature contracts remain planned  
+**Status:** Stage 3 Drop creation and creator lifecycle implemented; discovery/join/chat remain planned  
 **High-level design:** [`HLD.md`](./HLD.md)  
 **Product requirements:** [`../DropIn.md`](../DropIn.md)
 
-> The Stage 2 schema, RLS policies, Auth flow, and profile setup below now have an initial implementation. See [`../docs/DATABASE.md`](../docs/DATABASE.md) and [`../docs/AUTH_SETUP.md`](../docs/AUTH_SETUP.md). Drop lifecycle, chat, and moderation operation contracts remain design targets for later stages.
+> Stage 2 authentication/profile and Stage 3 Drop creation, cancellation, and creator activity history have initial implementations. See [`../docs/DATABASE.md`](../docs/DATABASE.md) and [`../docs/AUTH_SETUP.md`](../docs/AUTH_SETUP.md). Discovery, joining, chat, and moderation operations remain later-stage work.
 
 ## 1. Scope boundary
 
@@ -85,11 +85,11 @@ Suggested columns: `user_id uuid`, `interest text`, `created_at timestamptz`. Us
 | `description` | `text` | Required or optional per final form decision; bounded, plain text |
 | `category` | enum/text | Allow-listed category from product taxonomy |
 | `activity_type` | enum/text | `online` in release one |
-| `visibility` | enum/text | `public` and optionally `unlisted/private` after semantics decision |
-| `max_participants` | `smallint`/`integer` | Positive bounded value; includes/excludes creator per final decision |
-| `status` | enum/text | Suggested: `scheduled`, `active`, `cancelled`, `expired`; fullness derived from membership, not permanent status |
-| `starts_at` | `timestamptz` | Required or default now; validate scheduling window |
-| `expires_at` | `timestamptz` | Must be after start; authoritative join check |
+| `visibility` | `drop_visibility` | `public` or `private`; private access requires creator/participant authorization |
+| `max_participants` | `smallint` | 2–20, includes the creator |
+| `status` | `drop_status` | `scheduled`, `active`, `cancelled`, `expired`, or `archived`; expiration is also checked directly from `expires_at` |
+| `starts_at` | `timestamptz` | Defaults to database now; may be scheduled up to 7 days ahead |
+| `expires_at` | `timestamptz` | Computed from start plus a 15–240 minute duration; authoritative for active visibility |
 | `created_at` | `timestamptz` | Database time |
 | `updated_at` | `timestamptz` | Trusted update path/trigger |
 
@@ -99,7 +99,7 @@ Do not persist participant count as authority. Derive it from active membership 
 
 Suggested columns: `id uuid PK`, `drop_id uuid FK`, `user_id uuid FK`, `role text`, `status text`, `joined_at timestamptz`, `left_at timestamptz nullable`.
 
-The model must allow membership history while preventing multiple active rows. Prefer a partial unique index on `(drop_id, user_id) WHERE status = 'active'` (or equivalent finalized state design). Define whether creator membership is inserted automatically and whether leaving then rejoining creates a new historical row.
+The model allows membership history while preventing multiple active rows. A partial unique index on `(drop_id, user_id) WHERE status = 'active'` enforces this. `create_drop` inserts the creator's active membership in the same transaction; later rejoining will create a new history row.
 
 ### 3.5 `messages`
 
@@ -138,11 +138,11 @@ Required invariants:
 
 These are logical operations; whether each is a SQL RPC, Next.js route handler, or Edge Function is a deployment/security decision. Do not implement the same write in multiple paths with divergent rules.
 
-### `create_drop(input)`
+### `create_drop(input)` — implemented
 
 Input: `title`, `description`, `category`, `maxParticipants`, `duration`, optional `startsAt`, `visibility`. Identity comes from the validated session. Server/database sets IDs and timestamps.
 
-Rules: validate bounded values and allow-listed category; reject unsupported `activityType`; compute expiry consistently; optionally insert creator membership within the same transaction. Return the persisted Drop projection.
+Rules: validate bounded values and allow-listed category; online is the only supported activity type; compute expiry from duration; insert creator membership in the same transaction. Creator identity comes from `auth.uid()`. The RPC returns the created UUID. `cancel_my_drop(dropId)` locks the creator's row and sets `cancelled`, preserving history.
 
 ### `join_drop(dropId)`
 
@@ -260,7 +260,7 @@ Log operation name, safe actor ID where appropriate, outcome category, latency, 
 
 ## 13. Testing targets
 
-These tests should be added as functionality is implemented; they have not been run or created by this design document.
+These checks are added as functionality is implemented.
 
 - Unit: input schemas, expiry and status mapping, error mapping, cursor parsing.
 - Database integration: RLS allow/deny matrix, join race/capacity, duplicate membership, leave/rejoin, private message reads, creator-only updates.
@@ -280,4 +280,4 @@ Do not silently encode these assumptions; settle them before implementing depend
 
 ## 15. Implementation status
 
-Implemented and verified in Stage 2: profiles/interests, Drops/membership/message/report/block tables, indexes and constraints, RLS policies, automatic profile creation, transactional profile save, Supabase SSR clients, email/Google sign-in, callback/session refresh, sign-out, and profile setup/edit. ESLint, TypeScript, and 29 local pgTAP assertions pass. Drop creation/join/leave, message writes/realtime, moderation tools, and hosted provider setup remain unimplemented.
+Implemented in Stages 2–3: profiles/interests, Drops/membership/message/report/block tables, indexes/constraints/RLS, automatic profile creation, transactional profile save, cookie SSR Auth, and profile setup/edit. Stage 3 adds transactional Drop creation plus creator membership, creator-only cancellation, expiry-safe public visibility, create/detail pages, and creator activity history. Stage 2 ESLint, TypeScript, and 29 pgTAP checks passed. The latest Stage 3 test suite and code checks are deferred; discovery/join/leave, message writes/realtime, moderation tools, and hosted provider setup remain unimplemented.

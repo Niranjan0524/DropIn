@@ -6,7 +6,7 @@ DropIn is a real-time activity discovery platform for finding people to do somet
 
 ## Project status
 
-The repository includes the **Stage 1 foundation** and **Stage 2 implementation**: a Supabase schema with row-level security, cookie-based email/Google authentication, and protected profile setup. ESLint, TypeScript, and all 29 local pgTAP assertions pass. Drop discovery/creation/joining, chat, and notifications are later stages.
+The repository includes the **Stage 1 foundation**, **Stage 2 authentication/profile setup**, and the **Stage 3 Drop creation and creator activity flows**. Supabase migrations enforce ownership, creator membership, duration, capacity, cancellation, and expiry visibility. Stage 2 checks passed; verification of the latest Stage 3 changes is deferred. Discovery, joining, chat, and notifications are later stages.
 
 Read [`DropIn.md`](./DropIn.md) for the product requirements and [`architecture/HLD.md`](./architecture/HLD.md) and [`architecture/lld.md`](./architecture/lld.md) for proposed architecture and implementation details. [`docs/DECISIONS.md`](./docs/DECISIONS.md) records the current technical decisions and open questions.
 
@@ -15,7 +15,7 @@ Read [`DropIn.md`](./DropIn.md) for the product requirements and [`architecture/
 - Node.js 20.9 or newer
 - npm 10 or newer (the lockfile was generated with npm 11)
 
-The app shell runs without Supabase credentials. To exercise Stage 2 authentication, use the local setup described in [`docs/AUTH_SETUP.md`](./docs/AUTH_SETUP.md). A hosted Supabase project and Google OAuth credentials are not configured in this repository.
+The app shell runs without Supabase credentials. To exercise authentication and Drop creation, use the local setup described in [`docs/AUTH_SETUP.md`](./docs/AUTH_SETUP.md). A hosted Supabase project and Google OAuth credentials are not configured in this repository.
 
 ## Local development
 

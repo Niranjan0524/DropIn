@@ -1,5 +1,5 @@
 begin;
-select plan(15);
+select plan(16);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'user_interests', 'interests table exists');
@@ -19,6 +19,9 @@ select has_index('public', 'drop_participants', 'drop_participants_one_active_me
 select has_function('public', 'save_my_profile', ARRAY[
   'text', 'text', 'text', 'public.profile_visibility', 'text[]'
 ], 'profile update is one transactional RPC');
+select has_function('public', 'create_drop', ARRAY[
+  'text', 'text', 'public.drop_category', 'integer', 'integer', 'timestamp with time zone', 'public.drop_visibility'
+], 'Drop creation is one trusted transactional RPC');
 select ok(
   not has_table_privilege('authenticated', 'public.drop_participants', 'INSERT'),
   'clients cannot write membership rows directly'

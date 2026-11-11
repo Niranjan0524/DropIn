@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CancelDropButton } from "@/components/cancel-drop-button";
@@ -26,6 +27,7 @@ export default async function ActivitiesPage({
 }: {
   searchParams: Promise<{ cancelled?: string; error?: string }>;
 }) {
+  await connection();
   if (!isSupabaseConfigured()) return <SupabaseSetupNotice title="Your activities will appear here" />;
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/sign-in?next=%2Factivities");

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { SignInForm } from "@/components/sign-in-form";
 import { getSafeAuthReturnPath } from "@/features/auth/redirects";
@@ -12,6 +13,7 @@ type SignInPageProps = {
 };
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
+  await connection();
   const params = await searchParams;
   const nextPath = getSafeAuthReturnPath(params.next);
   const supabase = await createServerSupabaseClient();

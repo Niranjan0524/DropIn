@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "@/components/profile-form";
 import { SupabaseSetupNotice } from "@/components/supabase-setup-notice";
@@ -13,6 +14,7 @@ export default async function ProfileSetupPage({
 }: {
   searchParams: Promise<{ next?: string | string[] }>;
 }) {
+  await connection();
   if (!isSupabaseConfigured()) return <SupabaseSetupNotice title="Finish connecting Supabase first" />;
   const params = await searchParams;
   const returnTo = getSafeAuthReturnPath(params.next, "/profile");

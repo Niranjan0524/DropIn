@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signOutAction } from "@/features/auth/actions";
@@ -9,6 +10,7 @@ import { SupabaseSetupNotice } from "@/components/supabase-setup-notice";
 export const metadata: Metadata = { title: "Profile" };
 
 export default async function ProfilePage() {
+  await connection();
   if (!isSupabaseConfigured()) return <SupabaseSetupNotice title="Your profile will live here" />;
 
   const currentUser = await getCurrentUser();

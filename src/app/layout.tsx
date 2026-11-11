@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
@@ -28,7 +29,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <AppShell>{children}</AppShell>
+          <AppShell>
+            <Suspense fallback={
+              <div className="mx-auto w-full max-w-7xl px-5 py-16 text-sm text-muted sm:px-8" role="status">
+                Loading DropIn…
+              </div>
+            }>
+              {children}
+            </Suspense>
+          </AppShell>
         </ThemeProvider>
       </body>
     </html>

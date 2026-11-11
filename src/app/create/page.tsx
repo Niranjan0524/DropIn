@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { CreateDropForm } from "@/components/create-drop-form";
 import { SupabaseSetupNotice } from "@/components/supabase-setup-notice";
@@ -8,6 +9,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 export const metadata: Metadata = { title: "Create a Drop" };
 
 export default async function CreatePage() {
+  await connection();
   if (!isSupabaseConfigured()) return <SupabaseSetupNotice title="Connect DropIn to create a Drop" />;
 
   const currentUser = await getCurrentUser();

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
@@ -16,6 +17,7 @@ type DropPageProps = {
 };
 
 export default async function DropPage({ params, searchParams }: DropPageProps) {
+  await connection();
   if (!isSupabaseConfigured()) return <SupabaseSetupNotice title="Connect DropIn to view this Drop" />;
   const [{ dropId }, query, currentUser] = await Promise.all([params, searchParams, getCurrentUser()]);
   const validId = z.string().uuid().safeParse(dropId);
